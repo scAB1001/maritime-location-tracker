@@ -115,6 +115,85 @@ python manage.py runserver            # (first time only)
 python manage.py showmigrations
 ```
 
+### Docker setup
+
+```powershell
+Dockerfile
+docker-compose.yml
+```
+
+Docker-compose.yml
+When managing multiple container images for applications, a docker-compose file is used to streamline all processes. This file:
+
+Build images
+Create containers (our containers are backend and frontend)
+Start containers- attaching them to specified networks and binding them to volume mount points that allow for data persistence
+Initialise configured ports
+Execution via terminal
+Open your terminal and navigate to the root directory of your project, where the docker-compose file resides. You do not need your virtual environment to be active.
+
+In order for Docker to communicate between the client and server, the 'proxy' in package.json needs to be changed to:
+
+"proxy": "<http://backend:5000>",
+To simply build and run specific applications:
+
+```powershell
+# Tear down specific existing containers. 
+docker compose down -v;
+
+# Build and run the backend container image from scratch
+docker compose backend build --no-cache
+docker compose backend up
+
+# Build and run the frontend container image from scratch
+docker compose frontend build --no-cache
+docker compose frontend up
+
+# Run, stop, delete or restart containers
+docker compose <CONTAINER> up/stop/down/restart
+To build and run both containers together omit the container name:
+
+# Tear down
+docker compose down -v
+
+# Build manually from scratch
+docker compose build --no-cache
+
+# Watch the build context of a both services and automatically rebuild on changes
+docker compose up --build --watch
+
+# Run, stop, delete or restart containers
+docker compose up/stop/down/restart
+```
+
+You need only build the container images from scratch when changes are made to the application/Docker files, otherwise you can omit the --no-cache . Alternatively, you can auto-rebuild these containers when changes to the working directory source files are made.
+
+Commands for observing containers and their information:
+
+```powershell
+# Retrieve all (running and stopped) container information such as the ID
+docker ps -a
+
+# List all Docker images on the local system
+docker images
+
+# Show Docker disk usage
+docker system df
+
+# See the JSON data of a container
+docker inspect <CONTAINER_ID>
+Handling errors:
+
+# See the success/error logs of a container
+docker logs <CONTAINER_ID>
+
+# Remove a container
+docker rm <CONTAINER_ID>
+
+# Remove unused Docker images, containers, networks, and volumes
+docker system prune -f
+```
+
 ### Running the program
 
 ```powershell

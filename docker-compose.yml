@@ -1,0 +1,42 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: maritime_web
+    command: poetry run gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: maritime_celery
+    command: poetry run celery -A core worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: maritime_db
+    environment:
+      - POSTGRES_USER=maritime_user
+      - POSTGRES_PASSWORD=maritime_pass
+      - POSTGRES_DB=maritime_db
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: maritime_redis
+    ports:
+      - "6379:6379"

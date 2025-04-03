@@ -3,7 +3,7 @@ name = "maritime-tracker"
 version = "0.1.0"
 description = "Django-based maritime tracking web app"
 authors = ["Andreas Bazigos <bazigosa@gmail.com>"]
-package-mode = false  # Disables package installation mode
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10"
@@ -12,6 +12,9 @@ djangorestframework = "^3.16.0"
 celery = "^5.5.0"
 redis = "^5.2.1"
 elasticsearch-dsl = "^8.17.1"
+gunicorn = "^23.0.0"
+psycopg = "^3.2.6"
+psycopg2 = "^2.9.10"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
