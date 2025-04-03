@@ -97,7 +97,7 @@ maritime-tracker/
 ### Poetry Setup
 
 ```powershell
-# From maritime-tracker/ (root directory)
+# From maritime-tracker/ (root dir)
 poetry self add poetry-plugin-shell   # (Optional: adds the 'shell' plugin for convenience)
 poetry lock --no-cache --regenerate   # Create or refresh the lock file
 poetry self show plugins
@@ -109,10 +109,10 @@ poetry install                        # Install dependencies from pyproject.toml
 ### Django setup
 
 ```powershell
-# From maritime-tracker/ (root directory)
+# From maritime-tracker/ (root dir)
 django-admin startproject core .
-# Test dev server
-python manage.py runserver
+python manage.py runserver            # (first time only)
+python manage.py showmigrations
 ```
 
 ### Running the program
@@ -206,6 +206,7 @@ poetry.lock
 ```powershell
 git init
 git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git remote -v
 git checkout -b main
 git add .
 git commit -m "Initial commit: Maritime Tracker"
