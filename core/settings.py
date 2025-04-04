@@ -96,6 +96,7 @@ DATABASES = {
 
 CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_SEND_SENT_EVENT = True
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

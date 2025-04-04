@@ -9,9 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-ENV POETRY_VERSION=2.0.0
-
+    
 # 2) Install Poetry & immediately use it
+ENV POETRY_VERSION=2.0.0
 RUN set -ex \
     && curl -k -sSL https://install.python-poetry.org | python - \
     && export PATH="/root/.local/bin:$PATH" \

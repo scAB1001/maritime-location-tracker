@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: maritime_celery
-    command: poetry run celery -A core worker -l info
+    command: poetry run celery -A core worker -l info -E --concurrency=4
     volumes:
       - .:/app
     depends_on:
