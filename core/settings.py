@@ -13,33 +13,40 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# -----------------------------------------------------------------------------
+# BASE_DIR: Defines the base directory of the project.
+# -----------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
+# -----------------------------------------------------------------------------
+# SECURITY
+# -----------------------------------------------------------------------------
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-24qkug!kfw5r0z$hxxmm(vpe!j^jp1b#q*lw%1%oe5e$b8be!8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []  # Adjust to include your production hostnames
 
-
-# Application definition
-
+# -----------------------------------------------------------------------------
+# APPLICATION DEFINITION
+# -----------------------------------------------------------------------------
 INSTALLED_APPS = [
+    # Default Django apps:
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps:
     'rest_framework',
-    'maritime',
+
+    # Custom applications:
+    'maritime',  # Original maritime vessel tracking (can be re-enabled later)
+    'weather',   # New weather app for marine weather data
 ]
 
 MIDDLEWARE = [
@@ -54,10 +61,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'core.urls'
 
+# Templates configuration: Looks for templates in app directories and any specified DIRS.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # You can add global template paths here if needed.
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,70 +79,90 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# Heroku PostgreSQL DB
+# -----------------------------------------------------------------------------
+# DATABASE CONFIGURATION
+# -----------------------------------------------------------------------------
+# Here we define multiple databases: a default database and separate databases
+# for the maritime and weather apps. The values are sourced from environment variables,
+# with fallback defaults if not provided.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'maritime_db'),
+        'NAME': os.environ.get('DEFAULT_DB', 'default_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'default_user'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'default_pass'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # 'db' corresponds to the Postgres container in docker-compose.
+        'PORT': '5432',
+    },
+    'maritime': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('MARITIME_DB', 'maritime_db'),
         'USER': os.environ.get('POSTGRES_USER', 'maritime_user'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'maritime_pass'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # 'db' is the service name in docker-compose
+        'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': '5432',
-    }
+    },
+    'weather': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('WEATHER_DB', 'weather_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'weather_user'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'weather_pass'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': '5432',
+    },
 }
 
+# -----------------------------------------------------------------------------
+# DATABASE ROUTERS
+# -----------------------------------------------------------------------------
+# Django uses these router classes to direct database read and write operations.
+# For example, the MaritimeRouter should route all operations for models in the
+# maritime app to the 'maritime' database, and the WeatherRouter routes weather app
+# models to the 'weather' database.
+DATABASE_ROUTERS = [
+    'core.db_routers.MaritimeRouter',
+    'core.db_routers.WeatherRouter',
+]
+
+# -----------------------------------------------------------------------------
+# CELERY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Celery uses Redis as the broker and result backend. Task events are enabled for monitoring.
 CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_SEND_SENT_EVENT = True
 
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
+# -----------------------------------------------------------------------------
+# PASSWORD VALIDATION
+# -----------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
+# -----------------------------------------------------------------------------
+# INTERNATIONALIZATION
+# -----------------------------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+# -----------------------------------------------------------------------------
+# WEATHER SETTINGS
+# -----------------------------------------------------------------------------
+# Coordinates for the marine weather API. Adjust these as needed or make them dynamic.
+WEATHER_LATITUDE = 54.544587
+WEATHER_LONGITUDE = 10.227487
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# -----------------------------------------------------------------------------
+# STATIC FILES (CSS, JavaScript, Images)
+# -----------------------------------------------------------------------------
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
+# -----------------------------------------------------------------------------
+# DEFAULT PRIMARY KEY FIELD TYPE
+# -----------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

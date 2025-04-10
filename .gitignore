@@ -1,10 +1,26 @@
+# Python cache files
 __pycache__/
 *.py[cod]
 *.pyc
-.vscode/
+
+# Virtual environment directories
+.env/
 .env/
 .venv/
-poetry.lock
-.DS_Store
-.idea/
+env/
+
+# Editor and IDE directories
 .vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+
+# Angular / Node.js directories
+node_modules/
+dist/
+
+# Poetry lock file
+# It's recommended to keep this file to ensure consistent dependency versions across installations.
+# Uncomment the line below if you decide to ignore the lock file.
+# poetry.lock
